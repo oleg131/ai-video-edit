@@ -1,14 +1,21 @@
 <script>
-	import { onMount } from 'svelte';
 	import parse from 'shell-quote/parse';
 	import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 	import { v1 as uuidv1 } from 'uuid';
 	import { log } from '../lib/utils';
 	import { browser } from '$app/environment';
 
+	import Limitations from './Limitations.svelte';
 	import Pay from './Pay.svelte';
+	import SignUpBanner from './SignUpBanner.svelte';
 
-	const ffmpeg = createFFmpeg({ log: false });
+	// let console = {};
+	// console.log = function (arg) {
+	// 	if (typeof arg == 'object') {
+	// 		arg = JSON.stringify(arg);
+	// 	}
+	// 	document.getElementById('console').innerHTML += `<br />` + arg;
+	// };
 
 	const ENDPOINT = '/.netlify/functions/api';
 
@@ -45,24 +52,28 @@
 	}
 
 	const transcode = async ({ file, args, inputIndex, outputIndex }) => {
-		if (!ffmpeg.isLoaded()) {
-			await ffmpeg.load();
-		}
+		const ffmpeg = createFFmpeg({ log: false });
 
-		ffmpeg.FS('writeFile', file.name, await fetchFile(file));
+		ffmpeg.setLogger(({ type, message }) => {
+			// console.log({ type, message });
+			/*
+			 * type can be one of following:
+			 *
+			 * info: internal workflow debug messages
+			 * fferr: ffmpeg native stderr output
+			 * ffout: ffmpeg native stdout output
+			 */
 
-		let endDuration;
+			if (type === 'fferr') {
+				document.getElementById('ffmpeg').innerHTML = message;
+			}
 
-		let ss = hmsToSecondsOnly(findArg('-ss', args)) || 0;
-		let t = hmsToSecondsOnly(findArg('-t', args));
-		let to = hmsToSecondsOnly(findArg('-t', args));
-		if (t) {
-			endDuration = t;
-		} else if (to) {
-			endDuration = to - ss;
-		}
-
-		console.log('end duration', endDuration);
+			if (message.includes('pthread sent an error')) {
+				document.getElementById('status').innerHTML = 'Error processing video';
+				document.getElementById('submit-button').classList.remove('hidden');
+				document.getElementById('spinner').classList.add('hidden');
+			}
+		});
 
 		ffmpeg.setProgress((e) => {
 			console.log('progress', e);
@@ -86,13 +97,41 @@
 			}
 		});
 
+		if (!ffmpeg.isLoaded()) {
+			await ffmpeg.load();
+		}
+
+		ffmpeg.FS('writeFile', file.name, await fetchFile(file));
+
+		let endDuration;
+
+		let ss = hmsToSecondsOnly(findArg('-ss', args)) || 0;
+		let t = hmsToSecondsOnly(findArg('-t', args));
+		let to = hmsToSecondsOnly(findArg('-t', args));
+		if (t) {
+			endDuration = t;
+		} else if (to) {
+			endDuration = to - ss;
+		}
+
+		console.log('end duration', endDuration);
+
 		args[inputIndex] = file.name;
 
 		const outputName = args[outputIndex];
 
 		console.log('running ffmpeg');
 
-		await ffmpeg.run(...args);
+		try {
+			await ffmpeg.run(...args);
+		} catch (error) {
+			console.error(error);
+			document.getElementById('ffmpeg').innerHTML = error;
+			document.getElementById('submit-button').classList.remove('hidden');
+			document.getElementById('spinner').classList.add('hidden');
+
+			return;
+		}
 
 		console.log('finished running ffmpeg');
 
@@ -102,7 +141,6 @@
 			const data = ffmpeg.FS('readFile', outputName);
 
 			const video = document.getElementById('player');
-			video.src = null;
 			video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
 
 			document.getElementById('output-video-container').classList.remove('hidden');
@@ -116,6 +154,7 @@
 
 		document.getElementById('submit-button').classList.remove('hidden');
 		document.getElementById('spinner').classList.add('hidden');
+		document.getElementById('ffmpeg').innerHTML = null;
 	};
 
 	// onMount(async () => {
@@ -123,11 +162,11 @@
 	async function submitData() {
 		log('user pressed submit');
 
-		document.getElementById('player').src = null;
 		document.getElementById('output-video-container').classList.add('hidden');
 		document.getElementById('submit-button').classList.add('hidden');
 		document.getElementById('spinner').classList.remove('hidden');
 		document.getElementById('status').innerHTML = null;
+		document.getElementById('ffmpeg').innerHTML = null;
 
 		// @ts-ignore
 		const text = document.getElementById('text').value;
@@ -151,7 +190,11 @@
 		});
 
 		if (response.status >= 400 && response.status < 600) {
-			document.getElementById('status').innerHTML = "Can't understand your query. s";
+			document.getElementById('status').innerHTML = "Can't understand your query.";
+
+			document.getElementById('submit-button').classList.remove('hidden');
+			document.getElementById('spinner').classList.add('hidden');
+
 			return;
 		}
 
@@ -245,14 +288,14 @@
 
 <main>
 	<!-- component -->
-	<div class="flex items-center justify-center p-12">
+	<div class="flex items-center justify-center">
 		<!-- Author: FormBold Team -->
 		<!-- Learn More: https://formbold.com -->
 		<div class="mx-auto w-full max-w-[550px] bg-white">
 			<form class="py-6 px-9" action="https://formbold.com/s/FORM_ID" method="POST">
 				<div class="mb-6 pt-4">
 					<span class="mb-5 block text-xl font-semibold text-[#07074D]">
-						1. Select your media file
+						Select your media file
 					</span>
 
 					<div id="input-file-container" class="flex items-center justify-center w-full">
@@ -298,7 +341,7 @@
 					</div>
 
 					<span class="mt-5 block text-xl font-semibold text-[#07074D]">
-						2. Describe what you would like to do
+						Describe what you would like to do
 					</span>
 
 					<div class="mt-5 rounded-md bg-[#F5F7FB] py-4 px-8">
@@ -313,7 +356,7 @@
 
 				<div id="submit-button">
 					<button
-						class="hover:shadow-form w-full rounded-md bg-purple-600 py-3 px-8 text-center text-base font-semibold text-white outline-none"
+						class="hover:shadow-form w-full rounded-md bg-indigo-700 hover:bg-indigo-500 focus:ring-indigo-300 py-3 px-8 text-center text-base font-semibold text-white outline-none"
 						on:click|preventDefault={submitData}
 					>
 						Submit
@@ -323,15 +366,38 @@
 				<div id="spinner" class="mt-5 flex justify-center flex-col items-center hidden">
 					<div
 						class="w-12 h-12 rounded-full animate-spin
-			border-8 border-dashed border-purple-500 border-t-transparent"
+			border-8 border-dashed border-indigo-500 border-t-transparent"
 					/>
-					<div id="progress" class="mt-2 text-red-500 font-semibold" />
+					<div id="progress" class="mt-2 text-indigo-500 font-mono font-bold">Progress</div>
 				</div>
 
-				<div id="status" class="mt-5 text-black font-mono font-semibold" />
+				<div id="status" class="mt-5 text-black font-mono font-semibold text-center" />
+				<div id="ffmpeg" class="mt-5 text-black font-mono font-semibold text-center" />
 
-				<div id="output-video-container" class="hidden">
-					<span class="mt-5 block text-xl font-semibold text-[#07074D]"> Result </span>
+				<div id="console" />
+
+				<div
+					id="output-video-container"
+					class="mt-5 flex justify-center flex-col items-center hidden"
+				>
+					<!-- <span class="mt-5 block text-xl font-semibold text-[#07074D]"> Result </span> -->
+					<span class="w-16 block text-indigo-400">
+						<svg
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5"
+							/>
+						</svg>
+					</span>
+
 					<div class="mt-5 rounded-md bg-[#F5F7FB] overflow-hidden">
 						<div class="">
 							<video id="player" controls class="w-full" />
@@ -351,4 +417,4 @@
 	<button on:click={onClick}>button</button> -->
 </main>
 
-<Pay />
+<Limitations />
