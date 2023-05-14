@@ -6,8 +6,6 @@
 	import { browser } from '$app/environment';
 
 	import Limitations from './Limitations.svelte';
-	import Pay from './Pay.svelte';
-	import SignUpBanner from './SignUpBanner.svelte';
 
 	// let console = {};
 	// console.log = function (arg) {
@@ -52,7 +50,7 @@
 	}
 
 	const transcode = async ({ file, args, inputIndex, outputIndex }) => {
-		const ffmpeg = createFFmpeg({ log: false });
+		const ffmpeg = createFFmpeg({ log: true });
 
 		ffmpeg.setLogger(({ type, message }) => {
 			// console.log({ type, message });
@@ -190,7 +188,12 @@
 		});
 
 		if (response.status >= 400 && response.status < 600) {
-			document.getElementById('status').innerHTML = "Can't understand your query.";
+			const text = await response.text();
+			if (text.toLowerCase().includes('task timed out after')) {
+				document.getElementById('status').innerHTML = 'Servers are overloaded.';
+			} else {
+				document.getElementById('status').innerHTML = "Can't understand your query.";
+			}
 
 			document.getElementById('submit-button').classList.remove('hidden');
 			document.getElementById('spinner').classList.add('hidden');
@@ -258,7 +261,7 @@
 	}
 
 	function clearInputVideo() {
-		document.getElementById('video').src = null;
+		document.getElementById('video').src = '';
 		document.getElementById('uploader').value = null;
 		document.getElementById('input-file-container').classList.remove('hidden');
 		document.getElementById('input-video-container').classList.add('hidden');
@@ -275,13 +278,14 @@
 			<span
 				class="text-transparent bg-gradient-to-br bg-clip-text from-teal-500 via-indigo-500 to-sky-500 dark:from-teal-200 dark:via-indigo-300 dark:to-sky-500"
 			>
-				Unleash the Power of AI in Video Editing
+				Unleash the Power of AI in Media Editing
 			</span>
 		</h1>
 
 		<p class="max-w-3xl mx-auto mt-6 text-lg text-center text-gray-700 dark:text-white md:text-xl">
-			Revolutionize your video editing process with our intelligent and user-friendly app. Quickly
-			modify videos in minutes by telling the app what you'd like to do in plain language.
+			Revolutionize your video and audio editing process using the power of AI with our intelligent
+			and user-friendly app Cinema AI. Quickly modify media in minutes by telling the app what you'd
+			like to do in plain language and received modified video according to your instructions.
 		</p>
 	</div>
 </div>
@@ -372,7 +376,7 @@
 				</div>
 
 				<div id="status" class="mt-5 text-black font-mono font-semibold text-center" />
-				<div id="ffmpeg" class="mt-5 text-black font-mono font-semibold text-center" />
+				<div id="ffmpeg" class="mt-5 text-gray-700 font-mono font-semibold text-center" />
 
 				<div id="console" />
 
@@ -418,3 +422,10 @@
 </main>
 
 <Limitations />
+<main class="mb-auto h-10" />
+<footer class="text-center">
+	Resources used: <a href="https://github.com/ffmpegwasm/ffmpeg.wasm">ffmpeg.wasm</a> ·
+	<a href="https://chat.openai.com/">ChatpGPT</a>
+	· <a href="https://kit.svelte.dev/">SvelteKit</a> ·
+	<a href="https://tailwindcss.com/">Tailwind CSS</a>
+</footer>

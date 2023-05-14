@@ -17,6 +17,7 @@ async function ask({ prompt }) {
 
 	const response = await openai.createChatCompletion({
 		model: 'gpt-3.5-turbo',
+		temperature: 0.2,
 		messages: [{ role: 'user', content: prompt }]
 	});
 

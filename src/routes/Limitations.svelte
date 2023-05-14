@@ -28,11 +28,11 @@
 	<div class="mx-auto max-w-md">
 		<div class="divide-y divide-gray-300/50">
 			<div class="space-y-6 py-8 text-base leading-7 text-gray-600">
-				<h1
+				<h3
 					class="mb-4 font-extrabold leading-none tracking-tight text-gray-900 text-3xl dark:text-white"
 				>
 					Current limitations
-				</h1>
+				</h3>
 
 				<ul class="space-y-4">
 					<li class="flex items-center">
@@ -53,8 +53,8 @@
 			</div>
 			<div class="pt-8 text-base leading-7">
 				<p class="text-gray-900">
-					Are you ready to revolutionize your content creation? Sign up for the membership and
-					unlock a whole new world of possibilities for your video editing.
+					Are you ready to revolutionize your content creation? Sign up for membership and unlock a
+					whole new world of possibilities for your video editing.
 				</p>
 				<button
 					class="mt-6 w-full transform rounded-md bg-purple-700 hover:bg-purple-500 focus:ring-purple-300 px-4 py-2 capitalize tracking-wide text-white transition-colors duration-300 focus:outline-none focus:ring focus:ring-opacity-80"
@@ -103,9 +103,9 @@
 					<div class="container mx-auto">
 						<div id="form" class="max-w-md mx-auto my-10">
 							<div class="text-center">
-								<h1 class="my-3 text-3xl font-semibold text-gray-700 dark:text-gray-200">
+								<h3 class="my-3 text-3xl font-semibold text-gray-700 dark:text-gray-200">
 									Sign up
-								</h1>
+								</h3>
 								<p class="text-gray-500 dark:text-gray-400">
 									Thank you for your interest! This service is coming soon. Please feel free to
 									leave your feedback below. What features would you like to have implemented? How
