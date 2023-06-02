@@ -4,6 +4,8 @@
 	import { v1 as uuidv1 } from 'uuid';
 	import { log } from '../lib/utils';
 	import { browser } from '$app/environment';
+	// import mime from 'mime-types';
+	import mime from 'mime';
 
 	import Limitations from './Limitations.svelte';
 
@@ -116,7 +118,14 @@
 
 		args[inputIndex] = file.name;
 
+		console.log('new args', args);
+
 		const outputName = args[outputIndex];
+
+		console.log(outputName);
+
+		const mimeType = mime.getType(outputName);
+		console.log(mimeType);
 
 		console.log('running ffmpeg');
 
@@ -137,9 +146,26 @@
 
 		try {
 			const data = ffmpeg.FS('readFile', outputName);
-
 			const video = document.getElementById('player');
-			video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+
+			let media;
+
+			if (mimeType.startsWith('audio/')) {
+				media = document.createElement('audio');
+				media.setAttribute('controls', '');
+			} else if (mimeType.startsWith('image/')) {
+				media = document.createElement('img');
+			} else {
+				media = document.createElement('video');
+				media.setAttribute('controls', '');
+			}
+
+			media.src = URL.createObjectURL(new Blob([data.buffer], { type: mimeType }));
+
+			video.innerHTML = '';
+			video?.appendChild(media);
+
+			// video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
 
 			document.getElementById('output-video-container').classList.remove('hidden');
 
@@ -160,18 +186,18 @@
 	async function submitData() {
 		log('user pressed submit');
 
-		document.getElementById('output-video-container').classList.add('hidden');
-		document.getElementById('submit-button').classList.add('hidden');
-		document.getElementById('spinner').classList.remove('hidden');
-		document.getElementById('status').innerHTML = null;
-		document.getElementById('ffmpeg').innerHTML = null;
-
 		// @ts-ignore
 		const text = document.getElementById('text').value;
 
 		if (!text.length) {
 			throw Error('empty command');
 		}
+
+		document.getElementById('output-video-container').classList.add('hidden');
+		document.getElementById('submit-button').classList.add('hidden');
+		document.getElementById('spinner').classList.remove('hidden');
+		document.getElementById('status').innerHTML = null;
+		document.getElementById('ffmpeg').innerHTML = null;
 
 		console.log('received text:', text);
 
@@ -254,14 +280,34 @@
 
 	function onInputChange(e) {
 		const file = e.target.files[0];
-		document.getElementById('video').src = URL.createObjectURL(file);
+
+		let media;
+
+		if (file.type.startsWith('audio/')) {
+			media = document.createElement('audio');
+			media.setAttribute('controls', '');
+		} else if (file.type.startsWith('image/')) {
+			media = document.createElement('img');
+		} else {
+			media = document.createElement('video');
+			media.setAttribute('controls', '');
+		}
+
+		media.src = URL.createObjectURL(file);
+
+		document.getElementById('video').innerHTML = '';
+		document.getElementById('video')?.appendChild(media);
+
+		// document.getElementById('video').src = URL.createObjectURL(file);
 		// document.getElementById("video").play();
+
 		document.getElementById('input-file-container').classList.add('hidden');
 		document.getElementById('input-video-container').classList.remove('hidden');
 	}
 
 	function clearInputVideo() {
-		document.getElementById('video').src = '';
+		// document.getElementById('video').src = '';
+		document.getElementById('video').innerHTML = '';
 		document.getElementById('uploader').value = null;
 		document.getElementById('input-file-container').classList.remove('hidden');
 		document.getElementById('input-video-container').classList.add('hidden');
@@ -332,10 +378,11 @@
 						</label>
 					</div>
 
-					<div id="input-video-container" class="hidden">
+					<div id="input-video-container" class="hidden text-center">
 						<div class="mt-5 rounded-md bg-[#F5F7FB] overflow-hidden">
 							<div class="">
-								<video id="video" controls class="w-full" />
+								<!-- <video id="video" controls class="w-full" /> -->
+								<div id="video" class="w-full" />
 							</div>
 						</div>
 
@@ -404,7 +451,8 @@
 
 					<div class="mt-5 rounded-md bg-[#F5F7FB] overflow-hidden">
 						<div class="">
-							<video id="player" controls class="w-full" />
+							<!-- <video id="player" controls class="w-full" /> -->
+							<div id="player" class="w-full" />
 						</div>
 					</div>
 				</div>

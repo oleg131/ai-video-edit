@@ -42,7 +42,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 	// const prompt = `Write ffmpeg command to: ${data}.
 	// Only print the command, nothing else.`;
 
-	const prompt = `Write ffmpeg command to: ${data}. Surround the command with "%%%". What will the resulting output video be?
+	const prompt = `Write ffmpeg command to: ${data}. Surround the command with "%%%". What will the resulting output result be?
     `;
 
 	const choices = await ask({ prompt: prompt });
