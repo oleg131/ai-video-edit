@@ -7,7 +7,7 @@
 	// import mime from 'mime-types';
 	import mime from 'mime';
 
-	import Limitations from './Limitations.svelte';
+	import SignUpCard from './SignUpCard.svelte';
 
 	// let console = {};
 	// console.log = function (arg) {
@@ -315,6 +315,26 @@
 
 	function clearOutputVideo() {}
 
+	const PROMPTS = [
+		['extract segment between 1s and 7s', 'extract segment between 1s and 7s without reencoding'],
+		['flip video horizontally', 'flip video horizontally'],
+		['rotate video 90 degrees', 'rotate video 90 degrees without reencoding using metadata'],
+		['reverse video', 'reverse video'],
+		['extract audio between 1:10 and 1:20', 'extract audio between 1:10 and 1:20, output as audio'],
+		['get a screenshot at the 1:50 mark', 'get video frame at 1:50, output as image'],
+		['enhance bass and tremble', 'enhance bass and tremble'],
+		['crop video to 9:16', 'crop video to have aspect ratio 9:16']
+		// [
+		// 	'remove first 10 seconds and last 5 seconds of video',
+		// 	'remove first 10 seconds and last 5 seconds of video'
+		// ],
+		// ['reduce video size to 1 mb', 'change video quality so that the final output is under 1 mb']
+	];
+
+	function setPrompt(prompt) {
+		document.getElementById('text').value = prompt;
+	}
+
 	log('user loaded website');
 </script>
 
@@ -402,6 +422,17 @@
 							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 							placeholder="Extract first 2 seconds and flip the video horizontally."
 						/>
+						<div class=" p-4 flex justify-center items-center flex-wrap">
+							{#each PROMPTS as prompt}
+								<span
+									class="cursor-pointer inline-flex items-center m-2 px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-full text-sm font-semibold text-gray-600"
+									on:click|preventDefault={() => setPrompt(prompt[1])}
+									on:keydown={() => {}}
+								>
+									<span class="ml-1"> {prompt[0]} </span>
+								</span>
+							{/each}
+						</div>
 					</div>
 				</div>
 
@@ -468,8 +499,9 @@
 
 	<button on:click={onClick}>button</button> -->
 </main>
-
-<Limitations />
+<div class="mt-24">
+	<SignUpCard />
+</div>
 <main class="mb-auto h-10" />
 <footer class="text-center">
 	Resources used: <a href="https://github.com/ffmpegwasm/ffmpeg.wasm">ffmpeg.wasm</a> ·
