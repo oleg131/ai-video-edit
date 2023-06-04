@@ -57,7 +57,7 @@
 				<div class="space-y-6">
 					<div class="flex items-start space-x-3">
 						<div
-							class="inline-flex items-center justify-center h-10 w-10 rounded-md bg-indigo-500 text-white text-2xl p-2"
+							class="inline-flex items-center justify-center h-10 w-10 rounded-md text-white text-2xl p-2"
 						>
 							🗣️
 						</div>
@@ -71,7 +71,7 @@
 					</div>
 					<div class="flex items-start space-x-3">
 						<div
-							class="inline-flex items-center justify-center h-10 w-10 rounded-md bg-indigo-500 text-white text-2xl p-2"
+							class="inline-flex items-center justify-center h-10 w-10 rounded-md text-white text-2xl p-2"
 						>
 							💽
 						</div>
@@ -85,7 +85,7 @@
 					</div>
 					<div class="flex items-start space-x-3">
 						<div
-							class="inline-flex items-center justify-center h-10 w-10 rounded-md bg-indigo-500 text-white text-2xl p-2"
+							class="inline-flex items-center justify-center h-10 w-10 rounded-md text-white text-2xl p-2"
 						>
 							🌐
 						</div>

@@ -19,6 +19,28 @@
 
 	const ENDPOINT = '/.netlify/functions/api';
 
+	const PROMPTS = [
+		['extract segment between 1s and 7s', 'extract segment between 1s and 7s without reencoding'],
+		['flip video horizontally', 'flip video horizontally'],
+		['rotate video 90 degrees', 'rotate video 90 degrees without reencoding using metadata'],
+		['reverse video', 'reverse video'],
+		['extract audio between 1:10 and 1:20', 'extract audio between 1:10 and 1:20, output as audio'],
+		['get a screenshot at the 1:50 mark', 'get video frame at 1:50, output as image'],
+		['crop video to 9:16', 'crop video to have aspect ratio 9:16'],
+		['enhance bass and tremble', 'enhance bass and tremble'],
+		['crop image to square', 'crop image to have square aspect ratio, dont resize'],
+		['crop image for UK passport photo', 'crop image to aspect ratio 7:9'],
+		[
+			'crop image to aspect ratio 16:9',
+			'crop image to aspect ratio 16:9, use input width as the largest variable in crop filter'
+		]
+		// [
+		// 	'remove first 10 seconds and last 5 seconds of video',
+		// 	'remove first 10 seconds and last 5 seconds of video'
+		// ],
+		// ['reduce video size to 1 mb', 'change video quality so that the final output is under 1 mb']
+	];
+
 	if (browser) {
 		if (!localStorage.userId) {
 			localStorage.userId = uuidv1();
@@ -69,7 +91,7 @@
 			}
 
 			if (message.includes('pthread sent an error')) {
-				document.getElementById('status').innerHTML = 'Error processing video';
+				document.getElementById('status').innerHTML = 'Error processing media';
 				document.getElementById('submit-button').classList.remove('hidden');
 				document.getElementById('spinner').classList.add('hidden');
 			}
@@ -159,6 +181,8 @@
 				media = document.createElement('video');
 				media.setAttribute('controls', '');
 			}
+
+			console.log(`Output mime type: ${mimeType}`);
 
 			media.src = URL.createObjectURL(new Blob([data.buffer], { type: mimeType }));
 
@@ -315,22 +339,6 @@
 
 	function clearOutputVideo() {}
 
-	const PROMPTS = [
-		['extract segment between 1s and 7s', 'extract segment between 1s and 7s without reencoding'],
-		['flip video horizontally', 'flip video horizontally'],
-		['rotate video 90 degrees', 'rotate video 90 degrees without reencoding using metadata'],
-		['reverse video', 'reverse video'],
-		['extract audio between 1:10 and 1:20', 'extract audio between 1:10 and 1:20, output as audio'],
-		['get a screenshot at the 1:50 mark', 'get video frame at 1:50, output as image'],
-		['enhance bass and tremble', 'enhance bass and tremble'],
-		['crop video to 9:16', 'crop video to have aspect ratio 9:16']
-		// [
-		// 	'remove first 10 seconds and last 5 seconds of video',
-		// 	'remove first 10 seconds and last 5 seconds of video'
-		// ],
-		// ['reduce video size to 1 mb', 'change video quality so that the final output is under 1 mb']
-	];
-
 	function setPrompt(prompt) {
 		document.getElementById('text').value = prompt;
 	}
@@ -349,10 +357,11 @@
 		</h1>
 
 		<p class="max-w-3xl mx-auto mt-6 text-lg text-center text-gray-700 dark:text-white md:text-xl">
-			Revolutionize your video, audio and image editing process using the power of AI with our
-			intelligent and user-friendly app Cinema AI. Quickly modify media in minutes by telling the
-			app what you'd like to do in plain language and received modified video according to your
-			instructions.
+			Revolutionize your <span class="font-bold text-indigo-600">video</span>,
+			<span class="font-bold text-indigo-600">audio</span>
+			and <span class="font-bold text-indigo-600">image</span> editing process using the power of AI
+			with our intelligent and user-friendly app Cinema AI. Quickly modify media in minutes by telling
+			the app what you'd like to do in plain language and received modified video according to your instructions.
 		</p>
 	</div>
 </div>
@@ -423,7 +432,7 @@
 							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 							placeholder="Extract first 2 seconds and flip the video horizontally."
 						/>
-						<div class=" p-4 flex justify-center items-center flex-wrap">
+						<div class=" p-4 flex justify-center items-center flex-wrap max-h-80 overflow-y-scroll">
 							{#each PROMPTS as prompt}
 								<span
 									class="cursor-pointer inline-flex items-center m-2 px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-full text-sm font-semibold text-gray-600"
