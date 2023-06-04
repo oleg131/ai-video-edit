@@ -349,9 +349,10 @@
 		</h1>
 
 		<p class="max-w-3xl mx-auto mt-6 text-lg text-center text-gray-700 dark:text-white md:text-xl">
-			Revolutionize your video and audio editing process using the power of AI with our intelligent
-			and user-friendly app Cinema AI. Quickly modify media in minutes by telling the app what you'd
-			like to do in plain language and received modified video according to your instructions.
+			Revolutionize your video, audio and image editing process using the power of AI with our
+			intelligent and user-friendly app Cinema AI. Quickly modify media in minutes by telling the
+			app what you'd like to do in plain language and received modified video according to your
+			instructions.
 		</p>
 	</div>
 </div>
